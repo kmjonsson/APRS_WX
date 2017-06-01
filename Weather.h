@@ -26,5 +26,6 @@ typedef struct weatherData_s weatherData_t;
 char *weatherString(char *str);
 void weatherSetup();
 void weatherLoop();
+int weatherReady();
 
 #endif

@@ -153,3 +153,8 @@ char *weatherString(char *str) {
   return str;
 }
 
+int weatherReady() {
+  return 1;
+}
+
+

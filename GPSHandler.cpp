@@ -1,14 +1,15 @@
-#include "GPS.h"
 #include "GPSHandler.h"
 
 HardwareSerial &gpsSerial = Serial3;
 GPS gps(&gpsSerial,true);
 
-void GPSSetup() {
+GPS *GPSSetup() {
   gps.startSerial(9600);
   delay(1000);
   gps.setSentencesToReceive(OUTPUT_RMC_GGA);
+  return &gps;
 }
+
 void GPSLoop() {
   if (gps.sentenceAvailable()) gps.parseSentence();
 
@@ -20,6 +21,6 @@ void GPSLoop() {
 }
 
 int GPSReady() {
-	return 1;
+	return gps.sentenceAvailable();
 }
 

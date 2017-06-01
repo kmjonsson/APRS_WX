@@ -139,7 +139,7 @@ void logBuffer(const uint8_t * const buf, const int bitsSent,
   Serial.println();
 }
 
-void aprs_setup(const uint16_t p_preambleFlags, const uint8_t pttPin,
+void aprs_setup(const uint16_t p_preambleFlags, const uint8_t pttPin, const uint8_t pttPin2,
     const uint16_t pttDelay, const uint32_t toneLength,
     const uint32_t silenceLength)
 {
