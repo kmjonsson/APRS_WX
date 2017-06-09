@@ -230,15 +230,17 @@ uint8_t GPS::parseRMC(const char* nmea, const uint32_t now)
 
 uint8_t GPS::parse(const char* nmea, const uint32_t now)
 {
-  //Serial.print("P: ");
-  //Serial.println(nmea);
+    //Serial.print("P: ");
+    //Serial.println(nmea);
     if (*nmea != '$') {
         return PARSED_ERROR;
     }
     if (strstr(nmea, "$GPGGA") == nmea) {
         if (strlen(nmea) < 65) return PARSED_UNKNOWN; // No fix
+        //Serial.println(nmea);
         return parseGGA(nmea, now);
     } else if (strstr(nmea, "$GPRMC") == nmea) {
+        //Serial.println(nmea);
         if (strlen(nmea) < 65) return PARSED_UNKNOWN; // No fix
         return parseRMC(nmea, now);
     } else if (strstr(nmea, "$PMTK001") == nmea) {

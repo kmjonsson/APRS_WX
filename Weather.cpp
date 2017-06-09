@@ -11,12 +11,12 @@ weatherData_t weatherData;
 weatherData_t safeWeather;
 
 volatile int wPosw=0, wPosr=0;
-
-
+int weatherReadyState=0;
 
 // Weather loop (copy data from interrupt to "main" memory)
 void weatherLoop() {
   if(wPosw != wPosr) {
+    weatherReadyState = 1;
     weatherData_t w;
     memcpy(&safeWeather,&weatherData,sizeof(safeWeather));
     memcpy(&w,&weatherData,sizeof(safeWeather));
@@ -148,13 +148,28 @@ void weatherSetup() {
   SensorReceiver::init(digitalPinToInterrupt(WEATHER_PIN) , decodeWeather);
 }
 
-char *weatherString(char *str) {
-  str[0] = 0;
-  return str;
+uint16_t rain_since_middnight=0;
+
+void resetRain() {
+  rain_since_middnight = safeWeather.rain;
+}
+
+const char *weatherString() {
+  static char wxStr[100];
+  sprintf(wxStr,"%03d/%03dg%03dt%03dh%02dP%03d#%04d.DIY,%d,%d,%d",(int)(safeWeather.windDirection * 22.5),
+                                                          (int)(safeWeather.windSpeed / 10.0),
+                                                          (int)(safeWeather.windGustSpeed / 10.0),
+                                                          (int)((safeWeather.temp*1.8/10.0)+32),
+                                                          safeWeather.humidity,
+                                                          (int)((safeWeather.rain-rain_since_middnight) * (0.7 * 100 / 25.4)), // 0.7 * 100 / 25.4
+                                                         safeWeather.rain%10000,
+                                                         safeWeather.temp,safeWeather.windTemp,safeWeather.windChillTemp);
+  return wxStr;
 }
 
 int weatherReady() {
-  return 1;
+  return weatherReadyState;
 }
+
 
 

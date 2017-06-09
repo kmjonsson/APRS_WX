@@ -23,9 +23,10 @@ struct weatherData_s {
 
 typedef struct weatherData_s weatherData_t;
 
-char *weatherString(char *str);
+const char *weatherString();
 void weatherSetup();
 void weatherLoop();
 int weatherReady();
+void resetRain();
 
 #endif

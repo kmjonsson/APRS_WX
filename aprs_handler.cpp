@@ -23,14 +23,13 @@
 // Code located here: https://github.com/rvnash/ultimate_gps_teensy3
 #include "GPS.h"
 #include "aprs.h"
+#include "rxtx.h"
 
 // APRS Information
-#define PTT_PIN_1 15 // Push to talk pin
-#define PTT_PIN_2 16 // Push to talk pin
 
 // Set your callsign and SSID here. Common values for the SSID are
 #define S_CALLSIGN      "SA2BRJ"
-#define S_CALLSIGN_ID   1   // 11 is usually for balloons
+#define S_CALLSIGN_ID   13   // 11 is usually for balloons
 // Destination callsign: APRS (with SSID=0) is usually okay.
 #define D_CALLSIGN      "APRS"
 #define D_CALLSIGN_ID   0
@@ -55,9 +54,9 @@ void aprsSetup(GPS *g)
   agps = g;
   // Set up the APRS module
   aprs_setup(50, // number of preamble flags to send
-	     PTT_PIN_1, // Use PTT pin
-	     PTT_PIN_2, // Use PTT pin
-	     100, // ms to wait after PTT to transmit
+	     0, // Use PTT pin
+	     0, // Use PTT pin
+	     250, // ms to wait after PTT to transmit
 	     0, 0 // No VOX ton
 	     );
 }
@@ -92,24 +91,44 @@ void broadcastLocation(const char *comment)
   Serial.print(SYMBOL_CHAR);
   Serial.println();
 
+  rxtxTX();
+
   // Send the packet
   aprs_send_wx(addresses, nAddresses
 	    ,agps->day, agps->hour, agps->minute
 	    ,agps->latitude, agps->longitude
 	    //,gps.altitude // meters
-	    ,14 // speed
-	    ,15 // heading
+	    ,0 // speed
+	    ,0 // heading
 	    ,SYMBOL_TABLE
 	    ,SYMBOL_CHAR
 	    ,comment);
+/*
+  aprs_send(addresses, nAddresses
+      ,agps->day, agps->hour, agps->minute
+      ,agps->latitude, agps->longitude
+      ,agps->altitude // meters
+      ,0 // speed
+      ,0 // heading
+      ,SYMBOL_TABLE
+      ,SYMBOL_CHAR
+      ,"Testing");
+*/
+
+  rxtxRX();
 }
+
+#define WAIT_PERIOD (300*1000)
 
 uint32_t timeOfAPRS = 0;
 void aprsLoop(const char *wxStr)
-{
-  if (timeOfAPRS + 300*1000 < millis()) { // every 5min
+{  
+  if (timeOfAPRS + WAIT_PERIOD < millis()+WAIT_PERIOD) { // every 5min
+    Serial.print("Sending: ");
+    Serial.println(wxStr);
     broadcastLocation(wxStr);
-    timeOfAPRS = millis();
+    timeOfAPRS = millis() + WAIT_PERIOD;
   }
 }
+
 
