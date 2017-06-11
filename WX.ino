@@ -8,15 +8,20 @@
 #include "rxtx.h"
 
 #define GPS_EN 2
+#define WATCHDOG_PIN 23
 
 GPS *wx_gps;
+
+void wdt_ext_reset() {
+  digitalWrite(WATCHDOG_PIN, !digitalRead(WATCHDOG_PIN));
+}
 
 void setup() {
   Serial.begin(38400);
   Serial.println("WX");
 
+  pinMode(WATCHDOG_PIN, OUTPUT);
   
-
   // GPS
   pinMode(GPS_EN, OUTPUT);
   digitalWrite(GPS_EN, LOW);
@@ -33,6 +38,9 @@ int i=0;
 void loop() {
   static int ready = 0;
   static int lastday = -1;
+
+  wdt_ext_reset();
+  
   //Serial.println("hello :-)");
   /*
   while(Serial3.available()) {
@@ -69,6 +77,7 @@ void loop() {
   }
   
   delay(250);
+  
 }
 
 
