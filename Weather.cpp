@@ -22,7 +22,7 @@ void weatherLoop() {
     memcpy(&w,&weatherData,sizeof(safeWeather));
     wPosr = (wPosr+1) % 2;
 
-    // Print temperature. Note: temp is 10x the actual temperature!
+/*    // Print temperature. Note: temp is 10x the actual temperature!
     Serial.print("Temperature: ");
     Serial.print(w.temp / 10.0); // units
 
@@ -53,7 +53,7 @@ void weatherLoop() {
     Serial.print("Rain: ");
     Serial.print(w.rain * 0.7);
     Serial.println(" mm");
-    
+  */  
     if(safeWeather.modified & WEATHER_TEMP) {
       //weatherTime.temp = last_time;
     }
@@ -72,6 +72,7 @@ void weatherLoop() {
 
 //char str[64];
 void decodeWeather(byte *data) {
+  //Serial.print("decodeWeather");
   // Got space for more data?
   if(wPosr != wPosw) { return; }
 
@@ -139,6 +140,7 @@ void decodeWeather(byte *data) {
     sprintf(str,"%02X ",(data[3] & 0x1F));
     Serial.println(str);    
   }*/
+  //Serial.println("decodeWeather done");
 }
 
 // Weather setup
@@ -148,7 +150,7 @@ void weatherSetup() {
   SensorReceiver::init(digitalPinToInterrupt(WEATHER_PIN) , decodeWeather);
 }
 
-uint16_t rain_since_middnight=0;
+volatile uint16_t rain_since_middnight=0;
 
 void resetRain() {
   rain_since_middnight = safeWeather.rain;
@@ -156,14 +158,15 @@ void resetRain() {
 
 const char *weatherString() {
   static char wxStr[100];
-  sprintf(wxStr,"%03d/%03dg%03dt%03dh%02dP%03d#%04d.DIY,%d,%d,%d",(int)(safeWeather.windDirection * 22.5),
+  static int c=0;
+  sprintf(wxStr,"%03d/%03dg%03dt%03dh%02dP%03d#%04d.DIY,%d,%d,%d,%d",(int)(safeWeather.windDirection * 22.5),
                                                           (int)(safeWeather.windSpeed / 10.0),
                                                           (int)(safeWeather.windGustSpeed / 10.0),
                                                           (int)((safeWeather.temp*1.8/10.0)+32),
                                                           safeWeather.humidity,
                                                           (int)((safeWeather.rain-rain_since_middnight) * (0.7 * 100 / 25.4)), // 0.7 * 100 / 25.4
                                                          safeWeather.rain%10000,
-                                                         safeWeather.temp,safeWeather.windTemp,safeWeather.windChillTemp);
+                                                         safeWeather.temp,safeWeather.windTemp,safeWeather.windChillTemp,c++/1200);
   return wxStr;
 }
 
