@@ -18,6 +18,7 @@ void wdt_ext_reset() {
 
 void setup() {
   Serial.begin(38400);
+  delay(5000);
   Serial.println("WX");
 
   pinMode(WATCHDOG_PIN, OUTPUT);
@@ -28,9 +29,13 @@ void setup() {
   delay(1000);
   digitalWrite(GPS_EN, HIGH);
 
+  Serial.println("WX - GPS Setup");
   wx_gps = GPSSetup();
+  Serial.println("WX - WX Setup");
   weatherSetup();
+  Serial.println("WX - ARPS Setup");
   aprsSetup(wx_gps);
+  Serial.println("WX - RXTX Setup");
   rxtxSetup();
 }
 
@@ -74,10 +79,18 @@ void loop() {
     }
     const char *wxStr = weatherString();
     aprsLoop(wxStr);
+  } else {
+    if(!GPSReady()) {
+      Serial.println("GPS is not ready");
+    }
+    if(!weatherReady()) {
+      Serial.println("WX is not ready");
+    } else {
+      const char *wxStr = weatherString();
+      Serial.println(wxStr);
+    }
   }
-  
   delay(250);
-  
 }
 
 
